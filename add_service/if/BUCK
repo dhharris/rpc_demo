@@ -25,13 +25,14 @@ genrule(
 
 genrule(
     name = "gen-cpp",
-    cmd = "$(exe :thrift-compiler-bin) -r --gen cpp -out $OUT $SRCDIR/add_service.thrift",
+    cmd = "thrift -r --gen cpp -out $OUT $SRCDIR/add_service.thrift",
     srcs = [
         "add_service.thrift",
     ],
     outs = {
         "AddService.h": ["AddService.h"],
         "AddService.cpp": ["AddService.cpp"],
+        "add_service_types.h": ["add_service_types.h"],
     },
     visibility = ["PUBLIC"],
 )
@@ -39,9 +40,11 @@ genrule(
 cxx_library(
     name = "if",
     srcs = glob(["$(location :gen-cpp)/*.cpp"]),
+    headers = glob(["$(location :gen-cpp)/*.h"]),
+    #public_include_directories = ["$(location :gen-cpp)"],
     exported_headers = {
         "gen-cpp/AddService.h": ":gen-cpp[AddService.h]",
+        "gen-cpp/add_service_types.h": ":gen-cpp[add_service_types.h]",
     },
-    exported_deps = [":gen-cpp"],
     visibility = ["PUBLIC"],
 )

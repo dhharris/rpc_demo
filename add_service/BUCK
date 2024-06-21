@@ -4,6 +4,9 @@ cxx_library(
     deps = [
         "//add_service/if:if",
     ],
-    #exported_headers = glob(["add_service/*.h"]),
+    exported_headers = glob(["add_service/*.h"]),
+    exported_deps = [
+        "//add_service/if:if",
+    ],
     visibility = ["PUBLIC"],
 )
