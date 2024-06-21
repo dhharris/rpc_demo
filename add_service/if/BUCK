@@ -1,0 +1,47 @@
+http_archive(
+    name = "thrift-archive",
+    urls = [
+       "https://dlcdn.apache.org/thrift/0.20.0/thrift-0.20.0.tar.gz",
+    ],
+    sha256 = "b5d8311a779470e1502c027f428a1db542f5c051c8e1280ccd2163fa935ff2d6",
+    type = "tar.gz",
+    strip_prefix = "thrift-0.20.0",
+)
+
+genrule(
+    name = "thrift-compiler-build",
+    out = "thrift-build",
+    # Build the thrift compiler in the archive directory, then create a touchfile to mark the build as finished
+    cmd = "cd $(location :thrift-archive) && PATH=\"/opt/homebrew/opt/bison/bin:$PATH\" ./configure --with-boost=/opt/homebrew/lib --enable-tests=no --enable-tutorial=no --without-ruby --without-java && make && cd - && touch $OUT",
+)
+
+genrule(
+    name = "thrift-compiler-bin",
+    out = "thrift",
+    # Hacky way to make sure this rule depends on the build
+    cmd = "test -f $(location :thrift-compiler-build) && cp $(location :thrift-archive)/compiler/cpp/thrift $OUT",
+    executable = True,
+)
+
+genrule(
+    name = "gen-cpp",
+    cmd = "$(exe :thrift-compiler-bin) -r --gen cpp -out $OUT $SRCDIR/add_service.thrift",
+    srcs = [
+        "add_service.thrift",
+    ],
+    outs = {
+        "AddService.h": ["AddService.h"],
+        "AddService.cpp": ["AddService.cpp"],
+    },
+    visibility = ["PUBLIC"],
+)
+
+cxx_library(
+    name = "if",
+    srcs = glob(["$(location :gen-cpp)/*.cpp"]),
+    exported_headers = {
+        "gen-cpp/AddService.h": ":gen-cpp[AddService.h]",
+    },
+    exported_deps = [":gen-cpp"],
+    visibility = ["PUBLIC"],
+)

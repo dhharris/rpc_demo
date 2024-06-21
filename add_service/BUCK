@@ -1,0 +1,9 @@
+cxx_library(
+    name = "add_service",
+    srcs = glob(["add_service/*.cpp"]),
+    deps = [
+        "//add_service/if:if",
+    ],
+    #exported_headers = glob(["add_service/*.h"]),
+    visibility = ["PUBLIC"],
+)
