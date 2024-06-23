@@ -1,6 +1,7 @@
 
 ## Dependencies
-* thrift compiler
+* thrift
+* boost
 
 ## Install
 Install buck
@@ -10,7 +11,6 @@ cargo +nightly-2024-03-17 install --git https://github.com/facebook/buck2.git bu
 ```
 
 Buck build
-
 ```
 buck2 build //...
 ```

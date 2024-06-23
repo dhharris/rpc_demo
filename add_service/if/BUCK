@@ -1,38 +1,47 @@
+# This serves no real purpose - just an example for downloading a external lib
 http_archive(
-    name = "thrift-archive",
-    urls = [
-       "https://dlcdn.apache.org/thrift/0.20.0/thrift-0.20.0.tar.gz",
-    ],
-    sha256 = "b5d8311a779470e1502c027f428a1db542f5c051c8e1280ccd2163fa935ff2d6",
-    type = "tar.gz",
-    strip_prefix = "thrift-0.20.0",
+  name = "thrift-archive",
+  urls = [
+    "https://dlcdn.apache.org/thrift/0.20.0/thrift-0.20.0.tar.gz",
+  ],
+  sha256 = "b5d8311a779470e1502c027f428a1db542f5c051c8e1280ccd2163fa935ff2d6",
+  type = "tar.gz",
+  strip_prefix = "thrift-0.20.0",
 )
 
-genrule(
-    name = "thrift-compiler-build",
-    out = "thrift-build",
-    # Build the thrift compiler in the archive directory, then create a touchfile to mark the build as finished
-    cmd = "cd $(location :thrift-archive) && PATH=\"/opt/homebrew/opt/bison/bin:$PATH\" ./configure --with-boost=/opt/homebrew/lib --enable-tests=no --enable-tutorial=no --without-ruby --without-java && make && cd - && touch $OUT",
+cxx_library(
+  name = "boost",
+  exported_linker_flags = [
+    "-L{}".format("/opt/homebrew/Cellar/boost/1.85.0/lib/"),
+  ],
+  exported_preprocessor_flags = [
+    "-I{}".format("/opt/homebrew/Cellar/boost/1.85.0/include/"),  
+  ],
+  visibility = ["PUBLIC"],
 )
 
-genrule(
-    name = "thrift-compiler-bin",
-    out = "thrift",
-    # Hacky way to make sure this rule depends on the build
-    cmd = "test -f $(location :thrift-compiler-build) && cp $(location :thrift-archive)/compiler/cpp/thrift $OUT",
-    executable = True,
+cxx_library(
+  name = "thrift",
+  exported_linker_flags = [
+    "-L{}".format("/opt/homebrew/Cellar/thrift/0.20.0/lib/"),
+  ],
+  exported_preprocessor_flags = [
+    "-I{}".format("/opt/homebrew/Cellar/thrift/0.20.0/include/"),  
+  ],
+  exported_deps = [":boost"],
+  visibility = ["PUBLIC"],
 )
 
 genrule(
     name = "gen-cpp",
     cmd = "thrift -r --gen cpp -out $OUT $SRCDIR/add_service.thrift",
     srcs = [
-        "add_service.thrift",
+      "add_service.thrift",
     ],
     outs = {
-        "AddService.h": ["AddService.h"],
-        "AddService.cpp": ["AddService.cpp"],
-        "add_service_types.h": ["add_service_types.h"],
+      "AddService.h": ["AddService.h"],
+      "AddService.cpp": ["AddService.cpp"],
+      "add_service_types.h": ["add_service_types.h"],
     },
     visibility = ["PUBLIC"],
 )
@@ -40,11 +49,14 @@ genrule(
 cxx_library(
     name = "if",
     srcs = glob(["$(location :gen-cpp)/*.cpp"]),
-    headers = glob(["$(location :gen-cpp)/*.h"]),
-    #public_include_directories = ["$(location :gen-cpp)"],
     exported_headers = {
-        "gen-cpp/AddService.h": ":gen-cpp[AddService.h]",
-        "gen-cpp/add_service_types.h": ":gen-cpp[add_service_types.h]",
+      # Generated headers must be specified manually
+      # See https://github.com/facebook/buck2/issues/520
+      "gen-cpp/AddService.h": ":gen-cpp[AddService.h]",
+      "gen-cpp/add_service_types.h": ":gen-cpp[add_service_types.h]",
     },
+    exported_deps = [
+      ":thrift",
+    ],
     visibility = ["PUBLIC"],
 )
