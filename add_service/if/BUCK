@@ -41,7 +41,7 @@ gen_thrift(
 )
 
 cxx_library(
-    name = "if",
+    name = "if-cpp",
     srcs = [":gen-thrift[generated_sources]"],
     headers = [":gen-thrift[generated_headers]"],
     compiler_flags = [
@@ -52,5 +52,12 @@ cxx_library(
     exported_deps = [
       ":thrift",
     ],
+    visibility = ["PUBLIC"],
+)
+
+python_library(
+    name = "if-py",
+    srcs = [":gen-thrift[generated_py_sources]"],
+    base_module = "",
     visibility = ["PUBLIC"],
 )

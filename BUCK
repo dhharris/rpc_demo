@@ -7,5 +7,10 @@ cxx_binary(
     compiler_flags = [
       "-std=c++20",
     ],
-    #link_style = "static",
+)
+
+python_binary(
+  name = "client",
+  main = "client.py",
+  deps = ["//add_service/if:if-py"],
 )

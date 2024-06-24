@@ -9,6 +9,7 @@ def _gen_thrift(ctx: AnalysisContext) -> list[Provider]:
     out_artifact = ctx.actions.declare_output("out", dir=True)
     srcs = []
     headers = []
+    py_srcs = []
     for src in ctx.attrs.srcs:
         source_file = src.short_path.removesuffix(".thrift")
         gen_name = "".join([part.capitalize() for part in source_file.split("_")])
@@ -18,6 +19,11 @@ def _gen_thrift(ctx: AnalysisContext) -> list[Provider]:
         headers += [
             _project_output(out_artifact, gen_name + ".h"),
             _project_output(out_artifact, source_file + "_types.h"),
+        ]
+        py_srcs += [
+            _project_output(out_artifact, source_file + "/" + gen_name + ".py"),
+            _project_output(out_artifact, source_file + "/" + "constants.py"),
+            _project_output(out_artifact, source_file + "/" + "ttypes.py"),
         ]
 
     thrift_cmds = cmd_args(
@@ -52,6 +58,7 @@ def _gen_thrift(ctx: AnalysisContext) -> list[Provider]:
         sub_targets = {
             "generated_sources": [DefaultInfo(default_outputs = srcs)],
             "generated_headers": [DefaultInfo(default_outputs = headers)],
+            "generated_py_sources": [DefaultInfo(default_outputs = py_srcs)],
         },
     )]
 

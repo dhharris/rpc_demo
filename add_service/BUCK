@@ -3,7 +3,7 @@ cxx_library(
     srcs = glob(["*.cpp"]),
     exported_headers = glob(["*.h"]),
     exported_deps = [
-        "//add_service/if:if",
+        "//add_service/if:if-cpp",
     ],
     compiler_flags = [
       "-std=c++20",
