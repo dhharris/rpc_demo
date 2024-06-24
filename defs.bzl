@@ -5,7 +5,7 @@ def _project_output(out: Artifact, path: str) -> Artifact:
         return out.project(path, hide_prefix=True)
 
 
-def _thrift_gen_cpp(ctx: AnalysisContext) -> list[Provider]:
+def _gen_thrift(ctx: AnalysisContext) -> list[Provider]:
     out_artifact = ctx.actions.declare_output("out", dir=True)
     srcs = []
     headers = []
@@ -21,7 +21,7 @@ def _thrift_gen_cpp(ctx: AnalysisContext) -> list[Provider]:
         ]
 
     thrift_cmds = cmd_args(
-        ctx.attrs.srcs, format="thrift -r --gen cpp --out $OUT {}"
+        ctx.attrs.srcs, format="thrift -r --gen cpp --gen py --out $OUT {}"
     )
     script = [
         cmd_args(out_artifact, format="mkdir -p {}"),
@@ -55,8 +55,8 @@ def _thrift_gen_cpp(ctx: AnalysisContext) -> list[Provider]:
         },
     )]
 
-thrift_gen_cpp = rule(
-    impl = _thrift_gen_cpp,
+gen_thrift = rule(
+    impl = _gen_thrift,
     attrs = {
         "srcs": attrs.list(attrs.source()),
     }
