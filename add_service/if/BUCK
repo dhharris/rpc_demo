@@ -1,3 +1,4 @@
+load("//:defs.bzl", "thrift_gen_cpp")
 # This serves no real purpose - just an example for downloading a external lib
 http_archive(
   name = "thrift-archive",
@@ -9,7 +10,7 @@ http_archive(
   strip_prefix = "thrift-0.20.0",
 )
 
-cxx_library(
+prebuilt_cxx_library(
   name = "boost",
   exported_linker_flags = [
     "-L{}".format("/opt/homebrew/Cellar/boost/1.85.0/lib/"),
@@ -20,10 +21,10 @@ cxx_library(
   visibility = ["PUBLIC"],
 )
 
-cxx_library(
+prebuilt_cxx_library(
   name = "thrift",
   exported_linker_flags = [
-    "-L{}".format("/opt/homebrew/Cellar/thrift/0.20.0/lib/"),
+    "/opt/homebrew/Cellar/thrift/0.20.0/lib/libthrift.a",
   ],
   exported_preprocessor_flags = [
     "-I{}".format("/opt/homebrew/Cellar/thrift/0.20.0/include/"),  
@@ -32,29 +33,22 @@ cxx_library(
   visibility = ["PUBLIC"],
 )
 
-genrule(
-    name = "gen-cpp",
-    cmd = "thrift -r --gen cpp -out $OUT $SRCDIR/add_service.thrift",
-    srcs = [
-      "add_service.thrift",
-    ],
-    outs = {
-      "AddService.h": ["AddService.h"],
-      "AddService.cpp": ["AddService.cpp"],
-      "add_service_types.h": ["add_service_types.h"],
-    },
-    visibility = ["PUBLIC"],
+thrift_gen_cpp(
+  name = "gen-cpp",
+  srcs = [
+    "add_service.thrift",
+  ],
 )
 
 cxx_library(
     name = "if",
-    srcs = glob(["$(location :gen-cpp)/*.cpp"]),
-    exported_headers = {
-      # Generated headers must be specified manually
-      # See https://github.com/facebook/buck2/issues/520
-      "gen-cpp/AddService.h": ":gen-cpp[AddService.h]",
-      "gen-cpp/add_service_types.h": ":gen-cpp[add_service_types.h]",
-    },
+    srcs = [":gen-cpp[generated_sources]"],
+    headers = [":gen-cpp[generated_headers]"],
+    compiler_flags = [
+      "-std=c++20",
+    ],
+    exported_headers = [":gen-cpp[generated_headers]"],
+    header_namespace = "add_service/if/gen-cpp",
     exported_deps = [
       ":thrift",
     ],

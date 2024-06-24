@@ -3,9 +3,9 @@
 cxx_binary(
     name = "main",
     srcs = ["main.cpp"],
-    link_style = "static",
     deps = ["//add_service:add_service"],
     compiler_flags = [
       "-std=c++20",
     ],
+    #link_style = "static",
 )
