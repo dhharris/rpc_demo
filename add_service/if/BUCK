@@ -1,5 +1,5 @@
 load("//build_defs:thrift.bzl", "thrift_library")
-load("//build_defs:proto.bzl", "proto_library")
+load("//build_defs:proto.bzl", "proto_grpc_library")
 # This serves no real purpose - just an example for downloading a external lib
 http_archive(
   name = "thrift-archive",
@@ -29,6 +29,9 @@ prebuilt_cxx_library(
     "-labsl_log_internal_proto",
     "-labsl_log_internal_check_op",
     "-labsl_log_internal_message",
+    "-labsl_cord",
+    "-labsl_cord_internal",
+    "-labsl_cordz_info",
   ],
   exported_preprocessor_flags = [
     "-I{}".format("/opt/homebrew/Cellar/abseil/20240116.2/include/"),
@@ -61,6 +64,21 @@ prebuilt_cxx_library(
   visibility = ["PUBLIC"],
 )
 
+prebuilt_cxx_library(
+  name = "grpc",
+  exported_linker_flags = [
+    "-L{}".format("/opt/homebrew/Cellar/grpc/1.62.2_2/lib"),
+    "-lgrpc",
+    "-lgrpc++",
+    "-lgpr",
+  ],
+  exported_preprocessor_flags = [
+    "-I{}".format("/opt/homebrew/Cellar/grpc/1.62.2_2/include"),
+  ],
+  exported_deps = [":proto"],
+  visibility = ["PUBLIC"],
+)
+
 thrift_library(
   name = "if-thrift",
   srcs = [
@@ -73,14 +91,14 @@ thrift_library(
   visibility = ["PUBLIC"],
 )
 
-proto_library(
-  name = "if-proto",
+proto_grpc_library(
+  name = "if-proto-grpc",
   srcs = [
     "add_service.proto",
   ],
   languages = ["cpp", "py"],
   deps = [
-    ":proto",
+    ":grpc",
   ],
   visibility = ["PUBLIC"],
 )

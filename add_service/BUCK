@@ -1,9 +1,21 @@
 cxx_library(
-    name = "add_service",
-    srcs = glob(["*.cpp"]),
-    exported_headers = glob(["*.h"]),
+    name = "add_service-thrift",
+    srcs = ["AddServiceHandler.cpp"],
+    exported_headers = ["AddServiceHandler.h"],
     exported_deps = [
         "//add_service/if:if-thrift-cpp",
+    ],
+    compiler_flags = [
+      "-std=c++20",
+    ],
+    visibility = ["PUBLIC"],
+)
+cxx_library(
+    name = "add_service-grpc",
+    srcs = ["AddServiceImpl.cpp"],
+    exported_headers = ["AddServiceImpl.h"],
+    exported_deps = [
+        "//add_service/if:if-proto-grpc-cpp",
     ],
     compiler_flags = [
       "-std=c++20",
