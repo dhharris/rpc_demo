@@ -1,4 +1,5 @@
 load("//build_defs:thrift.bzl", "thrift_library")
+load("//build_defs:proto.bzl", "proto_library")
 # This serves no real purpose - just an example for downloading a external lib
 http_archive(
   name = "thrift-archive",
@@ -22,6 +23,20 @@ prebuilt_cxx_library(
 )
 
 prebuilt_cxx_library(
+  name = "abseil",
+  exported_linker_flags = [
+    "-L{}".format("/opt/homebrew/Cellar/abseil/20240116.2/lib/"),
+    "-labsl_log_internal_proto",
+    "-labsl_log_internal_check_op",
+    "-labsl_log_internal_message",
+  ],
+  exported_preprocessor_flags = [
+    "-I{}".format("/opt/homebrew/Cellar/abseil/20240116.2/include/"),
+  ],
+  visibility = ["PUBLIC"],
+)
+
+prebuilt_cxx_library(
   name = "thrift",
   exported_linker_flags = [
     "/opt/homebrew/Cellar/thrift/0.20.0/lib/libthrift.a",
@@ -33,8 +48,21 @@ prebuilt_cxx_library(
   visibility = ["PUBLIC"],
 )
 
+prebuilt_cxx_library(
+  name = "proto",
+  exported_linker_flags = [
+    "-L{}".format("/opt/homebrew/Cellar/protobuf/27.1/lib/"),
+    "-lprotobuf",
+  ],
+  exported_preprocessor_flags = [
+    "-I{}".format("/opt/homebrew/Cellar/protobuf/27.1/include/"),  
+  ],
+  exported_deps = [":abseil"],
+  visibility = ["PUBLIC"],
+)
+
 thrift_library(
-  name = "if",
+  name = "if-thrift",
   srcs = [
     "add_service.thrift",
   ],
@@ -45,3 +73,14 @@ thrift_library(
   visibility = ["PUBLIC"],
 )
 
+proto_library(
+  name = "if-proto",
+  srcs = [
+    "add_service.proto",
+  ],
+  languages = ["cpp", "py"],
+  deps = [
+    ":proto",
+  ],
+  visibility = ["PUBLIC"],
+)

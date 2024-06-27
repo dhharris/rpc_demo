@@ -12,5 +12,5 @@ cxx_binary(
 python_binary(
   name = "client",
   main = "client.py",
-  deps = ["//add_service/if:if-py"],
+  deps = ["//add_service/if:if-thrift-py"],
 )
