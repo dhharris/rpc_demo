@@ -1,4 +1,4 @@
-load("//:defs.bzl", "gen_thrift")
+load("//:defs.bzl", "thrift_library")
 # This serves no real purpose - just an example for downloading a external lib
 http_archive(
   name = "thrift-archive",
@@ -33,31 +33,15 @@ prebuilt_cxx_library(
   visibility = ["PUBLIC"],
 )
 
-gen_thrift(
-  name = "gen-thrift",
+thrift_library(
+  name = "if",
   srcs = [
     "add_service.thrift",
   ],
+  languages = ["cpp", "py"],
+  deps = [
+    ":thrift",
+  ],
+  visibility = ["PUBLIC"],
 )
 
-cxx_library(
-    name = "if-cpp",
-    srcs = [":gen-thrift[generated_sources]"],
-    headers = [":gen-thrift[generated_headers]"],
-    compiler_flags = [
-      "-std=c++20",
-    ],
-    exported_headers = [":gen-thrift[generated_headers]"],
-    header_namespace = "add_service/if/gen-cpp",
-    exported_deps = [
-      ":thrift",
-    ],
-    visibility = ["PUBLIC"],
-)
-
-python_library(
-    name = "if-py",
-    srcs = [":gen-thrift[generated_py_sources]"],
-    base_module = "",
-    visibility = ["PUBLIC"],
-)

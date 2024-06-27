@@ -1,7 +1,6 @@
 #include "AddServiceHandler.h"
 #include <iostream>
 
-// TODO: Figure out why buck doesn't find the cpp sources
 namespace AddService {
 int32_t AddServiceHandler::add(const int32_t n1, const int32_t n2) {
   return n1 + n2;
