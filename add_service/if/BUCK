@@ -1,4 +1,4 @@
-load("//:defs.bzl", "thrift_library")
+load("//build_defs:thrift.bzl", "thrift_library")
 # This serves no real purpose - just an example for downloading a external lib
 http_archive(
   name = "thrift-archive",
