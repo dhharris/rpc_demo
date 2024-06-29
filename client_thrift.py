@@ -1,6 +1,8 @@
 from add_service import AddService
 
 import logging
+from io import BytesIO
+from PIL import Image
 from thrift import Thrift
 from thrift.transport import TSocket
 from thrift.transport import TTransport
@@ -18,6 +20,9 @@ def main():
     logging.info(f"1 + 2 = {s}")
     s = client.plus_plus(1)
     logging.info(f"1++ = {s}")
+    resp = client.ad()
+    image = Image.open(BytesIO(resp))
+    image.show()
     client.ping()  # Say goodbye :-)
     transport.close()
 

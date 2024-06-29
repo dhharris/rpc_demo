@@ -1,5 +1,7 @@
 #include "AddServiceImpl.h"
+#include <fstream>
 #include <iostream>
+#include <sstream>
 
 using grpc::ServerContext;
 using grpc::Status;
@@ -24,6 +26,16 @@ Status AddServiceImpl::Ping(
     const PingRequest* request,
     PingResponse* response) {
   std::cout << "ping" << std::endl;
+  return Status::OK;
+}
+Status AddServiceImpl::Ad(
+    ServerContext* context,
+    const AdRequest* request,
+    AdResponse* response) {
+  std::ifstream input("./mads-test-high-test.jpg", std::ios::binary);
+  std::stringstream buf;
+  buf << input.rdbuf();
+  response->set_img(buf.str());
   return Status::OK;
 }
 } // namespace AddService

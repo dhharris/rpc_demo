@@ -6,6 +6,7 @@ service AddService {
   rpc Add (AddRequest) returns (AddResponse) {}
   rpc PlusPlus (PlusPlusRequest) returns (AddResponse) {}
   rpc Ping (PingRequest) returns (PingResponse) {}
+  rpc Ad (AdRequest) returns (AdResponse) {}
 }
 
 message AddRequest {
@@ -21,3 +22,7 @@ message AddResponse {
 }
 message PingRequest {}
 message PingResponse {}
+message AdRequest {}
+message AdResponse {
+  bytes img = 1;
+}

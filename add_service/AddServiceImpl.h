@@ -19,5 +19,9 @@ class AddServiceImpl final : public AddService::Service {
       grpc::ServerContext* context,
       const PingRequest* /*request*/,
       PingResponse* /*response*/) override;
+  virtual grpc::Status
+  Ad(grpc::ServerContext* context,
+     const AdRequest* /*request*/,
+     AdResponse* response) override;
 };
 } // namespace AddService

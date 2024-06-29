@@ -13,6 +13,7 @@ service AddService {
 
    i32 add(1:i32 num1, 2:i32 num2),
    i32 plus_plus(1:i32 num),
+   binary ad(),
 
    /**
     * This method has a oneway modifier. That means the client only makes

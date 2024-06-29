@@ -1,7 +1,9 @@
 import logging
+from io import BytesIO
 
 import grpc
-from add_service_pb2 import AddRequest, PingRequest, PlusPlusRequest
+from PIL import Image
+from add_service_pb2 import AdRequest, AddRequest, PingRequest, PlusPlusRequest
 from add_service_pb2_grpc import AddServiceStub
 
 
@@ -13,7 +15,10 @@ def main():
         logging.info(f"1 + 2 = {response.num}")
         response = client.PlusPlus(PlusPlusRequest(num=1))
         logging.info(f"1++ = {response.num}")
-        client.Ping(PingRequest())
+        response = client.Ad(AdRequest())
+        image = Image.open(BytesIO(response.img))
+        image.show()
+        client.Ping(PingRequest())  # Say goodbye :-)
 
 
 if __name__ == "__main__":
